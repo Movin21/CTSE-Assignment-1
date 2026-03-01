@@ -11,8 +11,8 @@ export async function connectRabbitMQ(): Promise<amqp.Channel> {
   return channel;
 }
 
-export async function publishOrderCreated(order: Record<string, unknown>): Promise<void> {
-  if (!channel) throw new Error('RabbitMQ channel not initialised');
-  const message = JSON.stringify(order);
-  channel.publish('order_events', 'order.created', Buffer.from(message), { persistent: true });
-}
+// export async function publishOrderCreated(order: Record<string, unknown>): Promise<void> {
+//   if (!channel) throw new Error('RabbitMQ channel not initialised');
+//   const message = JSON.stringify(order);
+//   channel.publish('order_events', 'order.created', Buffer.from(message), { persistent: true });
+// }
