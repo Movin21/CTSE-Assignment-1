@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -33,4 +34,13 @@ public class Product {
     @Column(nullable = false)
     @Builder.Default
     private Integer stockQuantity = 0;
+
+    @Column(nullable = false)
+    private String category;
+
+    private String imageUrl;
+
+    @Column(nullable = false, updatable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
