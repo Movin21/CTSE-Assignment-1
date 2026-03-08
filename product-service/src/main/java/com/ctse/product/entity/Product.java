@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -22,4 +23,14 @@ public class Product {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(length = 1000)
+    private String description;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal price;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer stockQuantity = 0;
 }
