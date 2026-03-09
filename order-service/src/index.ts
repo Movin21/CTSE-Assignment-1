@@ -23,3 +23,18 @@ app.get(["/health", "/api/orders/health"], (_req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// ─── Get all orders (optionally filtered by userId) ────────────────────────
+app.get("/api/orders", async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.query;
+    const whereClause = userId ? { userId: String(userId) } : {};
+    const orders = await prisma.order.findMany({
+      where: whereClause,
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
