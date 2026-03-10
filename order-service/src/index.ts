@@ -38,3 +38,15 @@ app.get("/api/orders", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
+
+// ─── Get ALL orders (admin) ────────────────────────────────────────────────
+app.get("/api/orders/all", async (_req: Request, res: Response) => {
+  try {
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch orders" });
+  }
+});
