@@ -50,3 +50,16 @@ app.get("/api/orders/all", async (_req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch orders" });
   }
 });
+
+// ─── Get order by ID ───────────────────────────────────────────────────────
+app.get("/api/orders/:id", async (req: Request, res: Response) => {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!order) return res.status(404).json({ error: "Order not found" });
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch order" });
+  }
+});
