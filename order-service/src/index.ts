@@ -63,3 +63,31 @@ app.get("/api/orders/:id", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch order" });
   }
 });
+
+// ─── Create order ──────────────────────────────────────────────────────────
+app.post("/api/orders", async (req: Request, res: Response) => {
+  try {
+    const { productId, quantity, userId, customerEmail } = req.body;
+    const requestedQty = Number(quantity) || 1;
+
+    if (!productId) {
+      return res.status(400).json({ error: "Product ID is required" });
+    }
+
+    // 1. Fetch authentic product details from Product Service synchronously
+    let productData: any;
+    try {
+      const productResponse = await fetch(
+        `${PRODUCT_SERVICE_URL}/api/products/${productId}`,
+      );
+      if (!productResponse.ok) throw new Error("Product returned non-200");
+      productData = await productResponse.json();
+    } catch (err: any) {
+      console.error(
+        "Failed to fetch product from product-service:",
+        err.message,
+      );
+      return res
+        .status(404)
+        .json({ error: "Product not found or unavailable" });
+    }
