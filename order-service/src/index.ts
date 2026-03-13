@@ -115,3 +115,16 @@ app.post("/api/orders", async (req: Request, res: Response) => {
         .status(400)
         .json({ error: "Failed to reserve stock. It may have sold out." });
     }
+
+    // 4. Create Order in the local database
+    const order = await prisma.order.create({
+      data: {
+        productId: productData.id,
+        productName: productData.name,
+        quantity: requestedQty,
+        totalPrice: authenticTotalPrice,
+        userId: userId || "anonymous",
+        customerEmail: customerEmail || "",
+        status: "PENDING",
+      },
+    });
