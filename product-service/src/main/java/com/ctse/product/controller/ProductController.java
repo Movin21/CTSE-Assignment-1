@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/products")
@@ -27,5 +29,22 @@ public class ProductController {
             return ResponseEntity.ok(productService.getProductsByCategory(category));
         }
         return ResponseEntity.ok(productService.getAllProducts());
+    }
+
+    @GetMapping("/health")
+    public ResponseEntity<?> health() {
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "service", "product-service"
+        ));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductById(@PathVariable UUID id) {
+        try {
+            return ResponseEntity.ok(productService.getProductById(id));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
