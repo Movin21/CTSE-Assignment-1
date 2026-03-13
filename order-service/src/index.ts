@@ -91,3 +91,13 @@ app.post("/api/orders", async (req: Request, res: Response) => {
         .status(404)
         .json({ error: "Product not found or unavailable" });
     }
+
+    if (productData.stockQuantity < requestedQty) {
+      return res.status(400).json({
+        error: `Insufficient stock. Only ${productData.stockQuantity} remaining.`,
+      });
+    }
+
+    // 2. Calculate true total price to prevent client-side spoofing
+    const authenticPrice = Number(productData.price);
+    const authenticTotalPrice = authenticPrice * requestedQty;
