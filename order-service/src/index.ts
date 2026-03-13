@@ -101,3 +101,17 @@ app.post("/api/orders", async (req: Request, res: Response) => {
     // 2. Calculate true total price to prevent client-side spoofing
     const authenticPrice = Number(productData.price);
     const authenticTotalPrice = authenticPrice * requestedQty;
+
+    // 3. Deduct stock synchronously via Product Service
+    try {
+      const patchRes = await fetch(
+        `${PRODUCT_SERVICE_URL}/api/products/${productId}/deduct-stock?quantity=${requestedQty}`,
+        { method: "PATCH" },
+      );
+      if (!patchRes.ok) throw new Error("Patch returned non-200");
+    } catch (err: any) {
+      console.error("Failed to deduct stock:", err.message);
+      return res
+        .status(400)
+        .json({ error: "Failed to reserve stock. It may have sold out." });
+    }
