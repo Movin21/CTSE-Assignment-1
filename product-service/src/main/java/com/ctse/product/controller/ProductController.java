@@ -68,4 +68,22 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok(Map.of("message", "Product deleted successfully"));
     }
+
+    @PatchMapping("/{id}/deduct-stock")
+    public ResponseEntity<?> deductStock(@PathVariable UUID id, @RequestParam int quantity) {
+        try {
+            return ResponseEntity.ok(productService.deductStock(id, quantity));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PatchMapping("/{id}/add-stock")
+    public ResponseEntity<?> addStock(@PathVariable UUID id, @RequestParam int quantity) {
+        try {
+            return ResponseEntity.ok(productService.addStock(id, quantity));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
 }
