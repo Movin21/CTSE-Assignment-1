@@ -128,3 +128,16 @@ app.post("/api/orders", async (req: Request, res: Response) => {
         status: "PENDING",
       },
     });
+
+    // Publish ORDER_PLACED event to RabbitMQ
+    publishOrderEvent({ ...order, eventType: "ORDER_PLACED" });
+    console.log(`[ORDER_PLACED] Order ${order.id} created — publishing event`);
+
+    res.status(201).json(order);
+  } catch (error) {
+    console.error("Error creating order:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to create order due to an internal error" });
+  }
+});
