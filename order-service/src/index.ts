@@ -141,3 +141,47 @@ app.post("/api/orders", async (req: Request, res: Response) => {
       .json({ error: "Failed to create order due to an internal error" });
   }
 });
+
+// ─── Update order status ───────────────────────────────────────────────────
+app.patch("/api/orders/:id/status", async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+
+    // If an admin is cancelling the order, restore the stock
+    if (status === "CANCELLED") {
+      const currentOrder = await prisma.order.findUnique({
+        where: { id: req.params.id },
+      });
+      if (currentOrder && currentOrder.status !== "CANCELLED") {
+        try {
+          const patchRes = await fetch(
+            `${PRODUCT_SERVICE_URL}/api/products/${currentOrder.productId}/add-stock?quantity=${currentOrder.quantity}`,
+            { method: "PATCH" },
+          );
+          if (!patchRes.ok)
+            console.error(
+              "Product Service returned non-200 while adding stock",
+            );
+        } catch (err: any) {
+          console.error(
+            "Failed to communicate with product-service for restocking:",
+            err.message,
+          );
+        }
+      }
+    }
+
+    const order = await prisma.order.update({
+      where: { id: req.params.id },
+      data: { status },
+    });
+
+    // Publish ORDER_STATUS_CHANGED event to RabbitMQ
+    publishOrderEvent({ ...order, eventType: "ORDER_STATUS_CHANGED" });
+    console.log(`[ORDER_STATUS_CHANGED] Order ${order.id} → ${status}`);
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update order status" });
+  }
+});
