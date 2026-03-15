@@ -1,15 +1,7 @@
-# Build stage
-FROM node:20-alpine AS builder
+﻿FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install --omit=dev
-
-# Production stage
-FROM node:20-alpine
-WORKDIR /app
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-COPY --from=builder /app/node_modules ./node_modules
-COPY . .
-USER appuser
+RUN npm ci --omit=dev
+COPY src ./src
 EXPOSE 8080
 CMD ["node", "src/index.js"]
