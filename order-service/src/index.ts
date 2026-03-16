@@ -229,3 +229,13 @@ app.patch("/api/orders/:id/cancel", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to cancel order" });
   }
 });
+
+// ─── Start ─────────────────────────────────────────────────────────────────
+async function start() {
+  await connectRabbitMQ();
+  app.listen(PORT, () => {
+    console.log(`[Order Service] Running on port ${PORT}`);
+  });
+}
+
+start().catch(console.error);
