@@ -5,3 +5,7 @@ RUN apt-get update -y && apt-get install -y openssl
 COPY package*.json ./
 COPY prisma ./prisma/
 RUN npm install
+COPY tsconfig.json ./
+COPY src ./src/
+RUN npx prisma generate
+RUN npm run build
