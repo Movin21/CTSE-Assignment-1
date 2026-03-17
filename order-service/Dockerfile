@@ -9,3 +9,9 @@ COPY tsconfig.json ./
 COPY src ./src/
 RUN npx prisma generate
 RUN npm run build
+
+# Production stage
+FROM node:20-slim
+WORKDIR /app
+RUN apt-get update -y && apt-get install -y openssl wget && rm -rf /var/lib/apt/lists/*
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
