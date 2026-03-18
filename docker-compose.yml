@@ -44,3 +44,75 @@ services:
       POSTGRES_PASSWORD: postgres
     ports:
       - '5436:5432'
+
+
+  identity-service:
+    build: ./identity-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-identity:5432/identity_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres-identity
+    ports:
+      - '8081:8081'
+
+  product-service:
+    build: ./product-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-product:5432/product_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres-product
+    ports:
+      - '8082:8082'
+
+  order-service:
+    build: ./order-service
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres-order:5432/order_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - postgres-order
+      - rabbitmq
+    ports:
+      - '3001:3001'
+
+  notification-service:
+    build: ./notification-service
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - rabbitmq
+    ports:
+      - '3002:3002'
+
+  admin-service:
+    build: ./admin-service
+    ports:
+      - '3003:3003'
+
+  api-gateway:
+    build: ./api-gateway
+    environment:
+      IDENTITY_SERVICE_URL: http://identity-service:8081
+      ORDER_SERVICE_URL: http://order-service:3001
+      PRODUCT_SERVICE_URL: http://product-service:8082
+      NOTIFICATION_SERVICE_URL: http://notification-service:3002
+      ADMIN_SERVICE_URL: http://admin-service:3003
+    depends_on:
+      - identity-service
+      - order-service
+      - product-service
+      - notification-service
+      - admin-service
+    ports:
+      - '8080:8080'
+
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:80'
+    depends_on:
+      - api-gateway
